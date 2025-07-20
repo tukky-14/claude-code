@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { Recipe } from '@/types/recipe';
 import { fetchMetadata, validateUrl, normalizeUrl } from '@/utils/metadata';
+import { splitTags, joinTags, validateTagCount, getTagCount } from '@/utils/tagUtils';
 
 interface EditRecipeModalProps {
   isOpen: boolean;
@@ -41,7 +42,7 @@ export default function EditRecipeModal({
       setTitle(recipe.title);
       setCategory(recipe.category);
       setNewCategory('');
-      setTags(recipe.tags.join(', '));
+      setTags(joinTags(recipe.tags));
       setImage(recipe.image);
       setErrors({});
     }
@@ -105,11 +106,7 @@ export default function EditRecipeModal({
     }
 
     const selectedCategory = newCategory.trim() || category;
-    const tagArray = tags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag)
-      .slice(0, 5); // 最大5つまで
+    const tagArray = splitTags(tags).slice(0, 5); // 最大5つまで
 
     onSave(recipe.id, {
       url: url.trim(),
@@ -219,28 +216,24 @@ export default function EditRecipeModal({
             type="text"
             value={tags}
             onChange={(e) => {
-              const inputTags = e.target.value
-                .split(',')
-                .map(tag => tag.trim())
-                .filter(tag => tag);
-              
-              if (inputTags.length <= 5) {
-                setTags(e.target.value);
+              const inputValue = e.target.value;
+              if (validateTagCount(inputValue, 5)) {
+                setTags(inputValue);
               }
             }}
             className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
-            placeholder="タグをカンマ区切りで入力（例: 和食, 簡単, 10分）"
+            placeholder="タグを区切りで入力（例: 和食、簡単、10分）"
           />
           <div className="flex justify-between items-center mt-1">
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              カンマ区切りで入力してください
+              「、」または「,」で区切って入力してください
             </p>
             <p className={`text-xs ${
-              tags.split(',').map(tag => tag.trim()).filter(tag => tag).length > 5 
+              getTagCount(tags) > 5 
                 ? 'text-red-500' 
                 : 'text-gray-500 dark:text-gray-400'
             }`}>
-              {tags.split(',').map(tag => tag.trim()).filter(tag => tag).length}/5
+              {getTagCount(tags)}/5
             </p>
           </div>
         </div>

@@ -1,5 +1,7 @@
 'use client';
 
+import { splitTags, joinTags } from '@/utils/tagUtils';
+
 interface FilterPanelProps {
   categories: string[];
   selectedCategory: string;
@@ -58,13 +60,10 @@ export default function FilterPanel({
           <div className="relative">
             <input
               type="text"
-              placeholder="タグを入力（カンマ区切り）"
-              value={selectedTags.join(', ')}
+              placeholder="タグを入力（区切り文字対応）"
+              value={joinTags(selectedTags)}
               onChange={(e) => {
-                const tags = e.target.value
-                  .split(',')
-                  .map(tag => tag.trim())
-                  .filter(tag => tag);
+                const tags = splitTags(e.target.value);
                 onTagsChange(tags);
               }}
               className="w-full p-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
