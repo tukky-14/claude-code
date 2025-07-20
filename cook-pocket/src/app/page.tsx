@@ -8,6 +8,7 @@ import RecipeCard from '@/components/RecipeCard';
 import FilterPanel from '@/components/FilterPanel';
 import AddRecipeModal from '@/components/AddRecipeModal';
 import EditRecipeModal from '@/components/EditRecipeModal';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function Home() {
   const {
@@ -29,6 +30,8 @@ export default function Home() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingRecipe, setDeletingRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
     const loadRecipes = async () => {
@@ -86,6 +89,26 @@ export default function Home() {
       setEditingRecipe(null);
     } catch (error) {
       console.error('Failed to update recipe:', error);
+    }
+  };
+
+  const handleDeleteRecipe = (recipeId: string) => {
+    const recipe = recipes.find(r => r.id === recipeId);
+    if (recipe) {
+      setDeletingRecipe(recipe);
+      setShowDeleteConfirm(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deletingRecipe) {
+      try {
+        await deleteRecipe(deletingRecipe.id);
+        setShowDeleteConfirm(false);
+        setDeletingRecipe(null);
+      } catch (error) {
+        console.error('Failed to delete recipe:', error);
+      }
     }
   };
 
@@ -185,7 +208,7 @@ export default function Home() {
                 key={recipe.id}
                 recipe={recipe}
                 onEdit={handleEditRecipe}
-                onDelete={deleteRecipe}
+                onDelete={handleDeleteRecipe}
               />
             ))}
           </div>
@@ -208,6 +231,20 @@ export default function Home() {
         onSave={handleUpdateRecipe}
         recipe={editingRecipe}
         existingCategories={categories}
+      />
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setDeletingRecipe(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="レシピを削除"
+        message={deletingRecipe ? `「${deletingRecipe.title}」を削除してもよろしいですか？この操作は元に戻せません。` : ''}
+        confirmText="削除する"
+        cancelText="キャンセル"
+        variant="danger"
       />
     </div>
   );
