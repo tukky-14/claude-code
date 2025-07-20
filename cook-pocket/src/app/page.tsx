@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useRecipeStore } from '@/store/recipeStore';
-import { getAllRecipes, initDB } from '@/lib/storage';
+import { getAllRecipes, initDB, clearAllRecipes, addRecipe as addRecipeToStorage } from '@/lib/storage';
 import { Recipe } from '@/types/recipe';
 import RecipeCard from '@/components/RecipeCard';
 import FilterPanel from '@/components/FilterPanel';
 import AddRecipeModal from '@/components/AddRecipeModal';
 import EditRecipeModal from '@/components/EditRecipeModal';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { exportRecipes, downloadExportFile, readImportFile, validateImportData, normalizeRecipeData, isValidImportFile, ExportData } from '@/utils/dataUtils';
 
 export default function Home() {
   const {
@@ -32,6 +33,8 @@ export default function Home() {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingRecipe, setDeletingRecipe] = useState<Recipe | null>(null);
+  const [showImportConfirm, setShowImportConfirm] = useState(false);
+  const [importData, setImportData] = useState<ExportData | null>(null);
 
   useEffect(() => {
     const loadRecipes = async () => {
@@ -112,6 +115,70 @@ export default function Home() {
     }
   };
 
+  const handleExportData = () => {
+    const exportData = exportRecipes(recipes);
+    downloadExportFile(exportData);
+  };
+
+  const handleImportFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!isValidImportFile(file)) {
+      alert('JSONファイルを選択してください');
+      return;
+    }
+
+    
+    readImportFile(file)
+      .then((content) => {
+        const validation = validateImportData(content);
+        if (validation.isValid && validation.data) {
+          setImportData(validation.data);
+          setShowImportConfirm(true);
+        } else {
+          alert(`インポートエラー: ${validation.error}`);
+        }
+      })
+      .catch((error) => {
+        alert(`ファイル読み込みエラー: ${error.message}`);
+      })
+      .finally(() => {
+        // ファイル入力をリセット
+        event.target.value = '';
+      });
+  };
+
+  const handleConfirmImport = async () => {
+    if (!importData) return;
+
+    try {
+      // 既存データをクリア
+      await clearAllRecipes();
+      
+      // 新しいデータを正規化
+      const normalizedRecipes = importData.recipes.map((recipe) => normalizeRecipeData(recipe));
+      
+      // 各レシピをストレージに保存
+      for (const recipe of normalizedRecipes) {
+        await addRecipeToStorage(recipe);
+      }
+      
+      // ストアの状態を更新
+      useRecipeStore.setState({ recipes: normalizedRecipes });
+      
+      // フィルターを再適用
+      useRecipeStore.getState().filterRecipes();
+
+      alert(`${normalizedRecipes.length}件のレシピをインポートしました`);
+      setShowImportConfirm(false);
+      setImportData(null);
+    } catch (error) {
+      console.error('Import error:', error);
+      alert('インポート中にエラーが発生しました');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -138,15 +205,44 @@ export default function Home() {
                 <p className="text-white/80 text-sm">あなただけのレシピコレクション</p>
               </div>
             </div>
-            <button
-              onClick={handleAddRecipe}
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>レシピを追加</span>
-            </button>
+            <div className="flex items-center space-x-3">
+              {/* エクスポートボタン */}
+              <button
+                onClick={handleExportData}
+                className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2"
+                title="データをエクスポート"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="hidden sm:inline">エクスポート</span>
+              </button>
+
+              {/* インポートボタン */}
+              <label className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 cursor-pointer">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+                <span className="hidden sm:inline">インポート</span>
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportFile}
+                  className="hidden"
+                />
+              </label>
+
+              {/* レシピ追加ボタン */}
+              <button
+                onClick={handleAddRecipe}
+                className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>レシピを追加</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -245,6 +341,20 @@ export default function Home() {
         confirmText="削除する"
         cancelText="キャンセル"
         variant="danger"
+      />
+
+      <ConfirmDialog
+        isOpen={showImportConfirm}
+        onClose={() => {
+          setShowImportConfirm(false);
+          setImportData(null);
+        }}
+        onConfirm={handleConfirmImport}
+        title="データをインポート"
+        message={importData ? `${importData.recipes.length}件のレシピをインポートします。現在のデータは上書きされます。よろしいですか？` : ''}
+        confirmText="インポートする"
+        cancelText="キャンセル"
+        variant="warning"
       />
     </div>
   );
