@@ -1,36 +1,168 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cook Pocket 🍳
 
-## Getting Started
+**あなただけのレシピコレクション** - お気に入りのレシピ URL を一元管理できる Web アプリケーション
 
-First, run the development server:
+[![デプロイ先](https://img.shields.io/badge/Live%20Demo-cook--pocket.vercel.app-blue)](https://cook-pocket.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.4.2-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4-38B2AC)](https://tailwindcss.com/)
+
+## 🌟 概要
+
+Cook Pocket は、インターネット上の様々な料理サイトから見つけたレシピの URL を収集・整理し、カテゴリやタグで簡単に検索できるパーソナルレシピブックマークサービスです。
+
+**🔗 公開 URL**: [https://cook-pocket.vercel.app/](https://cook-pocket.vercel.app/)
+
+## ✨ 主な機能
+
+### 📝 レシピ管理
+
+- **URL 登録**: レシピページの URL を簡単に保存
+- **自動メタデータ取得**: サイトタイトルや OGP 画像を自動取得
+- **一括インポート**: JSON ファイルからの一括データ取り込み
+- **データエクスポート**: レシピデータを JSON ファイルでバックアップ
+
+### 🔍 検索・フィルタリング
+
+- **カテゴリ別フィルタ**: レシピをカテゴリごとに整理
+- **タグ検索**: 複数タグでの絞り込み検索
+- **フリーワード検索**: タイトルや URL での全文検索
+
+### 🎨 ユーザビリティ
+
+- **レスポンシブデザイン**: モバイル・デスクトップ両対応
+- **ダークモード**: システム設定に自動追従
+- **オフライン対応**: ブラウザストレージでオフライン閲覧可能
+
+## 🛠 技術スタック
+
+- **フレームワーク**: Next.js 15.4.2 (App Router)
+- **言語**: TypeScript 5
+- **スタイリング**: Tailwind CSS 4
+- **状態管理**: Zustand 5.0.6
+- **データストレージ**: IndexedDB (idb 8.0.3)
+- **アイコン**: Heroicons 2.2.0
+- **デプロイ**: Vercel
+
+## 🚀 開発環境のセットアップ
+
+### 前提条件
+
+- Node.js 18.0.0 以上
+- npm, yarn, pnpm, または bun のいずれか
+
+### インストール
+
+```bash
+# リポジトリをクローン
+git clone <repository-url>
+cd cook-pocket
+
+# 依存関係をインストール
+npm install
+# または
+yarn install
+# または
+pnpm install
+# または
+bun install
+```
+
+### 開発サーバーの起動
 
 ```bash
 npm run dev
-# or
+# または
 yarn dev
-# or
+# または
 pnpm dev
-# or
+# または
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いて、アプリケーションを確認してください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`src/app/page.tsx` を編集すると、ページがリアルタイムで更新されます。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📱 使用方法
 
-## Learn More
+### 1. レシピの追加
 
-To learn more about Next.js, take a look at the following resources:
+1. 右上の「レシピを追加」ボタンをクリック
+2. レシピページの URL を入力
+3. タイトルが自動取得されない場合は手動で入力
+4. カテゴリとタグを設定
+5. 「保存」をクリック
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2. レシピの検索・フィルタリング
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **カテゴリフィルタ**: 上部のドロップダウンから選択
+- **タグ検索**: タグ入力フィールドに入力
+- **フリーワード検索**: 検索ボックスにキーワードを入力
 
-## Deploy on Vercel
+### 3. データの管理
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **エクスポート**: ヘッダーの「エクスポート」ボタンで JSON ファイルをダウンロード
+- **インポート**: ヘッダーの「インポート」ボタンで JSON ファイルをアップロード
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📦 ビルド
+
+### 本番用ビルド
+
+```bash
+npm run build
+npm run start
+```
+
+### Lint チェック
+
+```bash
+npm run lint
+```
+
+## 🏗 プロジェクト構成
+
+```
+src/
+├── app/                  # Next.js App Router
+│   ├── api/             # API routes
+│   ├── globals.css      # グローバルスタイル
+│   ├── layout.tsx       # ルートレイアウト
+│   └── page.tsx         # ホームページ
+├── components/          # React コンポーネント
+│   ├── AddRecipeModal.tsx
+│   ├── EditRecipeModal.tsx
+│   ├── FilterPanel.tsx
+│   ├── RecipeCard.tsx
+│   └── ...
+├── lib/                 # ライブラリとユーティリティ
+│   └── storage.ts       # IndexedDB操作
+├── store/               # 状態管理
+│   └── recipeStore.ts   # Zustandストア
+├── types/               # TypeScript型定義
+│   └── recipe.ts
+└── utils/               # ユーティリティ関数
+    ├── dataUtils.ts
+    ├── metadata.ts
+    └── tagUtils.ts
+```
+
+## 🎯 今後の改善予定
+
+- [ ] PWA (Progressive Web App) 対応
+- [ ] レシピの評価・お気に入り機能
+- [ ] 栄養情報の表示
+- [ ] レシピの共有機能
+- [ ] 材料での検索機能
+
+## 🤝 コントリビューション
+
+プルリクエストや Issues は歓迎します！改善提案がある場合は、お気軽にお声がけください。
+
+## 📄 ライセンス
+
+このプロジェクトは MIT ライセンスの下で公開されています。
+
+---
+
+**Cook Pocket**で、あなたのレシピコレクションを整理して、料理の時間をもっと楽しくしましょう！🍽️
