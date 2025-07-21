@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   keywords: ["レシピ", "ブックマーク", "料理", "管理", "Cook Pocket"],
   authors: [{ name: "Cook Pocket" }],
   icons: {
-    icon: '/icon.svg',
-    shortcut: '/icon.svg',
-    apple: '/icon.svg',
+    icon: '/cook-pocket.png',
+    shortcut: '/cook-pocket.png',
+    apple: '/cook-pocket.png',
   },
 };
 
