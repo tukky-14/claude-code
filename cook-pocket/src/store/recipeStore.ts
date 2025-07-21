@@ -96,6 +96,9 @@ export const useRecipeStore = create<RecipeStore>((set, get) => ({
       );
     }
 
+    // Sort recipes by title
+    filtered.sort((a, b) => a.title.localeCompare(b.title, 'ja', { sensitivity: 'base' }));
+
     set({ filteredRecipes: filtered });
   },
 }));

@@ -186,7 +186,8 @@ export default function EditRecipeModal({
                 setNewCategory('');
               }
             }}
-            className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 mb-2"
+            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 appearance-none cursor-pointer mb-2"
+            style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
           >
             <option value="">選択してください</option>
             {existingCategories.map((cat) => (

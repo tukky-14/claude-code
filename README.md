@@ -1,5 +1,14 @@
 # Claude Code 学習
 
+### 使用状況を確認
+
+```bash
+npx ccusage@latest
+
+# 参考
+# https://zenn.dev/ryoppippi/articles/6c9a8fe6629cd6
+```
+
 ### 作業完了後に通知音を設定
 
 ```bash
@@ -10,7 +19,7 @@ for sound in /System/Library/Sounds/*.aiff; do name=$(basename "$sound" .aiff); 
 afplay /System/Library/Sounds/Glass.aiff
 
 # 参考
-https://zenn.dev/karaage0703/articles/1cb99d9fca145f
+# https://zenn.dev/karaage0703/articles/1cb99d9fca145f
 ```
 
 ### メモ

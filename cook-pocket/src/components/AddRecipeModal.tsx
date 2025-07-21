@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Modal from './Modal';
 import { fetchMetadata, validateUrl, normalizeUrl } from '@/utils/metadata';
 import { splitTags, validateTagCount, getTagCount } from '@/utils/tagUtils';
@@ -32,6 +32,15 @@ export default function AddRecipeModal({
   const [image, setImage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const urlInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen && urlInputRef.current) {
+      setTimeout(() => {
+        urlInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
 
   const handleUrlChange = async (inputUrl: string) => {
     setUrl(inputUrl);
@@ -120,6 +129,7 @@ export default function AddRecipeModal({
             URL *
           </label>
           <input
+            ref={urlInputRef}
             type="text"
             value={url}
             onChange={(e) => handleUrlChange(e.target.value)}
@@ -165,7 +175,8 @@ export default function AddRecipeModal({
                 setNewCategory('');
               }
             }}
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 mb-2"
+            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 appearance-none cursor-pointer mb-2"
+            style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
           >
             <option value="">選択してください</option>
             {existingCategories.map((cat) => (
